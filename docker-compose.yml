@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: user-service-app
     ports:
-      - "3001:3000"
+      - "3001:3001"
     restart: always
 
   data-siswa-service:
@@ -14,7 +14,16 @@ services:
       dockerfile: Dockerfile
     container_name: data-siswa-service-app
     ports:
-      - "3002:3000"
+      - "3002:3002"
+    restart: always
+
+  absensi-service:
+    build: 
+      context: ./absensi-service
+      dockerfile: Dockerfile
+    container_name: absensi-service-app
+    ports:
+      - "3003:3003"
     restart: always
 
   data-guru-service:
