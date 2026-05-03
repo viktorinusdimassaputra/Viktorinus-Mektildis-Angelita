@@ -1,4 +1,4 @@
-﻿services:
+services:
   user-service:
     build: 
       context: ./user-service
@@ -15,4 +15,13 @@
     container_name: data-siswa-service-app
     ports:
       - "3002:3000"
+    restart: always
+
+  data-guru-service:
+    build: 
+      context: ./data-guru-service
+      dockerfile: Dockerfile
+    container_name: data-guru-service-app
+    ports:
+      - "3003:3000"
     restart: always
