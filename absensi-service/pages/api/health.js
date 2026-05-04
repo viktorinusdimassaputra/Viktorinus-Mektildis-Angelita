@@ -1,40 +1,51 @@
 import { Pool } from 'pg';
 
-export default async function handler(req, res) {
-  try {
-    const pool = new Pool({
+let pool;
+
+function getPool() {
+  if (!pool) {
+    pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       ssl: {
         rejectUnauthorized: false,
       },
+      max: 5, // batasi koneksi
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 5000,
     });
+  }
+  return pool;
+}
 
-    const client = await pool.connect();
-    const result = await client.query('SELECT NOW() as current_time');
-    client.release();
+export default async function handler(req, res) {
+  try {
+    const pool = getPool();
 
-    // Format output disamakan PERSIS dengan punya dosen
+    const result = await pool.query('SELECT NOW() as current_time');
+
     const dbTime = new Date(result.rows[0].current_time).toString();
-    
+
     res.status(200).json({
       ok: true,
       status: "healthy",
       timestamp: new Date().toISOString(),
       database: {
         ok: true,
-        message: `Tersambung ke Neon. Server time: ${dbTime}`
-      }
+        message: `Tersambung ke Neon. Server time: ${dbTime}`,
+      },
     });
-    
+
   } catch (error) {
-    res.status(500).json({ 
+    console.error("DB ERROR:", error);
+
+    res.status(500).json({
       ok: false,
       status: "error",
       database: {
         ok: false,
         message: "Gagal tersambung ke Neon.",
-        error: error.message
-      }
+        error: error.message,
+      },
     });
   }
 }
